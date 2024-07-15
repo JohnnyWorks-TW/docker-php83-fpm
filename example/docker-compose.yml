@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+  nginx:
+    image: nginx:mainline-alpine-slim
+    restart: always
+    ulimits:
+      nofile:
+        soft: 10240
+        hard: 10240
+    ports:
+      - '80:80'
+    volumes:
+      - ./www:/data
+      - ./conf:/etc/nginx/conf.d
+    links:
+      - phpfpm
+    logging:
+      driver: 'json-file'
+      options:
+        max-file: '2'
+        max-size: '2m'
+    networks:
+      - default
+  phpfpm:
+    image: johnnyworks/php83-fpm-alpine:latest
+    restart: always
+    ulimits:
+      nofile:
+        soft: 10240
+        hard: 10240
+    volumes:
+      - ./www:/data
+      - ./php.ini:/usr/local/etc/php/php.ini
+      - ./phpfpm.conf:/usr/local/etc/php-fpm.d/www.conf
+    logging:
+      driver: 'json-file'
+      options:
+        max-file: '2'
+        max-size: '2m'
+    networks:
+      - default
+networks:
+  default:
